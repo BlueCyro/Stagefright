@@ -34,13 +34,10 @@ public class Stagefright : ResoniteMod
                     StringBuilder sb = new($"Removing ArtNet router for world: {w.Name}\nRouter contained universes: ");
                     var indicies = router.GetUniverseIndicies();
                     int count = indicies.Count();
-                    var enumerator = indicies.GetEnumerator();
-
-                    for (int i = 0; i < count; i++)
+                    int index = 0;
+                    foreach (int uni in indicies)
                     {
-
-                        sb.Append((i == count - 2 ? ", " : " and ") + enumerator.Current);
-                        enumerator.MoveNext();
+                        sb.Append($"{uni}{(index++ < count - 1 ? index == count - 1 ? " and " : ", " : "")}"); // The ternary ever
                     }
 
                     router.DestroyUniverses();
