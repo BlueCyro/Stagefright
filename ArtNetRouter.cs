@@ -87,7 +87,7 @@ public class ArtNetRouter
 
     public void Route(ArtNetMessage msg)
     {
-        if (msg.IsDMX)
+        if (msg.IsValid && msg.Op == ArtOpCode.OpDmx)
         {
             Span<byte> data = msg.DMXData;
 
