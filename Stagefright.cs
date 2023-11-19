@@ -9,7 +9,7 @@ public class Stagefright : ResoniteMod
 {
     public override string Name => "StageFright";
     public override string Author => "Cyro";
-    public override string Version => "1.0.0";
+    public override string Version => "1.0.1";
     public override string Link => "resonite.com";
     public static ModConfiguration? Config;
 
