@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ResonitePath)'==''">
@@ -32,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Haukcode.ArtNet" Version="1.3.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 using Elements.Core;
 using FrooxEngine;
+using Haukcode.ArtNet.Packets;
 
 namespace Stagefright;
 
@@ -85,13 +86,13 @@ public class ArtNetRouter
         }
     }
 
-    public void Route(ArtNetMessage msg)
+    public void Route(ArtNetPacket msg)
     {
-        if (msg.IsValid && msg.Op == ArtOpCode.OpDmx)
+        if (msg is ArtNetDmxPacket dmx)
         {
-            Span<byte> data = msg.DMXData;
+            var data = dmx.DmxData;
 
-            if (universes.TryGetValue(msg.Universe, out var streams))
+            if (universes.TryGetValue(dmx.Universe + 1, out var streams))
             {
                 for (int i = 0; i < streams.Count; i++)
                 {

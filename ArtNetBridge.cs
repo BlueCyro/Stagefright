@@ -2,17 +2,20 @@ using FrooxEngine;
 using Elements.Core;
 using System.Net.Sockets;
 using FrooxEngine.ProtoFlux;
+using System.Net;
+using Haukcode;
+using Haukcode.ArtNet.Sockets;
+using System.Net.NetworkInformation;
+using Haukcode.Sockets;
+using Haukcode.ArtNet.Packets;
 
 namespace Stagefright;
 
 public static class ArtNetBridge
 {
-    public const string LISTEN_ADDRESS = "127.0.0.1";
-    public const int ARTNET_PORT = 6454;
     public const string UNIVERSE_PREFIX = "DMXUniverse:";
-    public static UdpClient client = new(ARTNET_PORT);
     public static BiDictionary<World, ArtNetRouter> routers = new();
-    private static CancellationTokenSource tknSrc = new();
+    private static ArtNetSocket artSocket = new();
 
     public static bool TryGetRouter(this World w, out ArtNetRouter router)
     {
@@ -31,26 +34,19 @@ public static class ArtNetBridge
 
     public static void StartListening()
     {
-        Stagefright.Msg($"Starting client connection on: {LISTEN_ADDRESS}:{ARTNET_PORT}");
-        client.Connect(LISTEN_ADDRESS, ARTNET_PORT);
-        Stagefright.Msg("Starting ArtNet listener loop");
-        Task.Run(async () => await ConnectionLoop(tknSrc.Token));
+
+        dynamic addr = Haukcode.ArtNet.Helper.GetAddressesFromInterfaceType(NetworkInterfaceType.Loopback).First();
+        
+        artSocket.Open(addr.Address, addr.NetMask);
+        Stagefright.Msg($"Starting client connection on: {artSocket.LocalIP}:{ArtNetSocket.Port}");
+        artSocket.NewPacket += ReceivePacket;
     }
 
-    public static void StopListening()
+    public static void ReceivePacket(object sender, NewPacketEventArgs<ArtNetPacket> evArgs)
     {
-        tknSrc.Cancel();
-    }
-
-    public static async Task ConnectionLoop(CancellationToken token)
-    {
-        while (!token.IsCancellationRequested)
+        foreach (var router in routers)
         {
-            var data = await client.ReceiveAsync();
-            foreach(var router in routers)
-            {
-                router.Second.Route(new(data.Buffer));
-            }
+            router.Second.Route(evArgs.Packet);
         }
     }
 

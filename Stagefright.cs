@@ -9,7 +9,7 @@ public class Stagefright : ResoniteMod
 {
     public override string Name => "StageFright";
     public override string Author => "Cyro";
-    public override string Version => "1.0.1";
+    public override string Version => "0.0.1";
     public override string Link => "https://github.com/RileyGuy/Stagefright";
     public static ModConfiguration? Config;
 
@@ -25,7 +25,7 @@ public class Stagefright : ResoniteMod
             DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", BuildSet);
             DevCreateNewForm.AddAction("ArtNet", "Set up all universes", SetupWorldUniverses);
             
-
+            
             Engine.Current.WorldManager.WorldRemoved += w =>
             {
                 var worlds = Engine.Current.WorldManager.Worlds;
