@@ -22,14 +22,14 @@ public class Stagefright : ResoniteMod
         Engine.Current.RunPostInit(() =>
         {
             ArtNetBridge.StartListening();
-            DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", BuildSet);
-            DevCreateNewForm.AddAction("ArtNet", "Set up all universes", SetupWorldUniverses);
+            DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", UniverseHelper.BuildSet);
+            DevCreateNewForm.AddAction("ArtNet", "Set up all universes", UniverseHelper.SetupWorldUniverses);
             
-            
+
             Engine.Current.WorldManager.WorldRemoved += w =>
             {
                 var worlds = Engine.Current.WorldManager.Worlds;
-                if (ArtNetBridge.routers.TryGetSecond(w, out ArtNetRouter router))
+                if (w.TryGetRouter(out ArtNetRouter router))
                 {
                     StringBuilder sb = new($"Removing ArtNet router for world: {w.Name}\nRouter contained universes: ");
                     var indicies = router.GetUniverseIndicies();
@@ -40,47 +40,10 @@ public class Stagefright : ResoniteMod
                         sb.Append($"{uni}{(index++ < count - 1 ? index == count - 1 ? " and " : ", " : "")}"); // The ternary ever
                     }
 
-                    router.DestroyUniverses();
-                    ArtNetBridge.routers.RemoveByFirst(w);
+                    w.TryDestroyRouter();
                     Stagefright.Msg(sb.ToString());
                 }
             };
         });
-    }
-
-    public static void BuildSet(Slot s)
-    {
-        var field = s.AttachComponent<ReferenceField<Slot>>();
-        field.Reference.Changed += c =>
-        {
-            if (field.Reference.Target != null)
-            {
-                ArtNetBridge.SetupUniverse(field.Reference.Target);
-            }
-        };
-        s.OpenInspectorForTarget();
-    }
-
-    public static void SetupWorldUniverses(Slot temp)
-    {
-        var all = temp.World.AllSlots;
-
-        var universes = all.Select(s => new { isUniverse = s.Name.TryParseUniverseInfo(out UniverseInfo uniInfo), info = uniInfo, slot = s })
-                            .Where(s => s.isUniverse)
-                            .GroupBy(s => s.info.Universe)
-                            .Select(s => s.First())
-                            .ToList();
-
-        ArtNetRouter router = temp.World.SetupRouter();
-        
-        router.DestroyUniverses();
-
-        foreach (var s in universes)
-        {
-            if (!router.ContainsUniverse(s.info.Universe))
-                s.slot.SetupUniverse(s.info);
-        }
-
-        temp.Destroy();
     }
 }

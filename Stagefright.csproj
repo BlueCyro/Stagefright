@@ -30,11 +30,12 @@
     <Reference Include="Elements.Assets">
       <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Assets.dll</HintPath>
     </Reference>
+    <Reference Include="ArtfullySimple">
+      <HintPath>$(ResonitePath)rml_libs\ArtfullySimple.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Haukcode.ArtNet" Version="1.3.4" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
   </ItemGroup>
