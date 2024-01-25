@@ -19,31 +19,19 @@ public class Stagefright : ResoniteMod
         Config = GetConfiguration();
         Config?.Save(true);
 
-        Engine.Current.RunPostInit(() =>
+        if (HeadlessHelper.IsHeadless)
         {
-            ArtNetBridge.StartListening();
-            DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", UniverseHelper.BuildSet);
-            DevCreateNewForm.AddAction("ArtNet", "Set up all universes", UniverseHelper.SetupWorldUniverses);
-            
-
-            Engine.Current.WorldManager.WorldRemoved += w =>
+            Msg("Headless detected! Running headless-specific setup...");
+            HeadlessHelper.PatchHeadless(harmony);
+        }
+        else
+        {
+            Engine.Current.RunPostInit(() =>
             {
-                var worlds = Engine.Current.WorldManager.Worlds;
-                if (w.TryGetRouter(out ArtNetRouter router))
-                {
-                    StringBuilder sb = new($"Removing ArtNet router for world: {w.Name}\nRouter contained universes: ");
-                    var indicies = router.GetUniverseIndicies();
-                    int count = indicies.Count();
-                    int index = 0;
-                    foreach (int uni in indicies)
-                    {
-                        sb.Append($"{uni}{(index++ < count - 1 ? index == count - 1 ? " and " : ", " : "")}"); // The ternary ever
-                    }
-
-                    w.TryDestroyRouter();
-                    Stagefright.Msg(sb.ToString());
-                }
-            };
-        });
+                ArtNetBridge.StartListening();
+                DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", StageHelper.BuildStage);
+                DevCreateNewForm.AddAction("ArtNet", "Set up all universes", StageHelper.SetupWorldStages);
+            });
+        }
     }
 }

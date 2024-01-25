@@ -1,0 +1,85 @@
+Stagefright scratch notes:
+
+How to handle universe setups per world?
+
+Data comes in -> Needs to be routed to setups in-world. Current setup is a bridge -> manager -> universe, but that's hard to manage.
+
+Problems:
+- Need to register manager for each world
+- Need to register universes for each manager
+  - This results in difficult two-axis queries to what are essentially nested dictionaries
+  - Multithreading is challenging due to this two-axis nature of manager -> universe -> streams
+    * This is difficult already because the bridge needs to push updates to the streams
+
+- Accessing streams from two threads. Bridge needs to push updates, but must instantly respect when streams are removed.
+  - Use simple locks perhaps? This would require locking in multiple places, but would be reliable and not hinder performance too much.
+  - ReaderWriterLockSlim? Technically can be used in reverse to efficiently write the streams in 'read' mode, and destroy them with exclusive access in 'write' mode.
+    * Attractive due to the amount of data throughput
+    * Still technically requires locking in multiple places, but could be more lean for this use case
+    * Where to use?
+      + Apply reader lock before updating all streams, release only after all streams have completed update transaction
+      + Apply writer lock before destroying all streams, event unsubscription and removal of holder class from hashset
+      + While in writer lock, set atomic boolean flag for 'destroying' to true so that we don't waste any work on a destroyed item before GC sweeps it up
+
+- Bridge is disorganized and includes functions related to the world
+  - Separate out into helper?
+  - Bridge could contain simpler functions that run internal behavior such as stream group creation and destruction
+  + Isolate most world functionality outside of bridge and into helper
+
+Solutions?
+
++++ ACCEPTED
+1) Make classes that only subscribe to the bridge on the universe they need
+  - Bridge will need to handle sorting the data to the proper universe
+  - Will these classes need process the data? Probably.
+  - Storage of these classes needs to be simple to avoid difficult accesses
+    * Must handle event subscription atomically - implicit with event handlers
+    * Must instantly respect when streams are destroyed.
+      + Acquire read lock on stream update, release after all streams have updated
+      + Acquire write lock on destruction if using ReaderWriterLockSlim?
+      + Check atomic boolean to cease work if stream is being destroyed?
+      + Keep stream blobs in simple hashset and confine modifications to world thread only? This removes multithreading complexity
+      ++ This is potentially very desirable
+
+    
+    ## WRITEOFF
+    * Can we avoid dictionaries? Streams already belong to a world. Concurrent bag could hold them
+    * If concurrent bag is used, how can we destroy a bag item when a world is left?
+    * Worlds have join and leave events, each item could handle it's own destruction upon world removal
+      - Can't remove specific items easily from concurrentbag
+      + This simplifies accesses significantly, with each class handling its own subscription
+      - How do we handle unsubscription in the middle of updating streams?
+      + Instead of concurrent bags, perhaps immutables with interlocks?
+
+
+## WRITEOFF
+2) Implicitly create stream groups for each user when a new universe is detected - leaning away from this one
+  - Potentially bad for performance, but would be easy to implement.
+  - Setting up in-world universe groups becomes easier
+
+
+
+Impl candidate #1:
+  * Bridge sorts out universe information and sends respective universe data along events
+    ! Make sure to use proper event subscribers for atomic event subscription
+    * Bridge abstracts packet data away into raw DMX information (ideally, maybe)
+  
+  * Bridge contains functions for instantiating stream group on specific universe for particular world
+    -- TODO: Allow arbitrary universe destruction at any point without leaving a world. Right now simplicity is the focus, this isn't a deal breaker
+
+  * Functions dealing with in-world universe setups are isolated to helper class
+
+  * Simple hashset to contain stream groups
+    ! Modifications restricted to world thread ONLY
+
+  * Stream groups contain simple event callback for processing universe data, subscribed on creation
+    - Streams are updated via callback acquiring read lock on ReaderWriterLockSlim. Released when all streams have completed updating
+    - Stream groups destroy implicitly on world removed event callback
+      ! Destroy is ONLY called synchronously
+    - Destroy acquires exclusive write lock for hashset removal, event unsubscription and subsequently stream destruction
+      + Exclusive write lock should wait until read lock is released I think?
+      ++ Any code behind read locks then checks atomic 'destroyed' boolean and aborts work if true
+        ++ Avoids too much contention on listening thread
+
+
+Trying candidate #1: 

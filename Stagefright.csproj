@@ -5,11 +5,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <Authors>Cyro</Authors>
+    <Product>Stagefright ArtNet DMX Interface</Product>
+    <Description>ArtNet DMX interface for Resonite</Description>
+    <Copyright>Copyright (c) 2023 Riley Fields</Copyright>
   </PropertyGroup>
 
+
+  <!--This will test for the default Steam installation paths for Resonite on Windows and Linux.-->
   <PropertyGroup Condition="'$(ResonitePath)'==''">
-    <ResonitePath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\Resonite\')">C:\Program Files (x86)\Steam\steamapps\common\Resonite\</ResonitePath>
+    <ResonitePath Condition="'$(OS)' == 'Windows_NT' and Exists('C:\Program Files (x86)\Steam\steamapps\common\Resonite\')">C:\Program Files (x86)\Steam\steamapps\common\Resonite\</ResonitePath> 
+    <ResonitePath Condition="'$(OS)' != 'Windows_NT' and Exists('$(HOME)/.local/share/Steam/steamapps/common/Resonite/')">$(HOME)/.local/share/Steam/steamapps/common/Resonite/</ResonitePath>
+    <!--If neither path above exists, you can define your custom Resonite install directory here -->
+    <ResonitePath Condition="'$(ResonitePath)'==''">/Custom/Resonite/Install/Path</ResonitePath>
+    <HeadlessPath>$(ResonitePath)Headless\</HeadlessPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +33,8 @@
       <HintPath Condition="Exists('$(ResonitePath)Libraries\0Harmony.dll')">$(ResonitePath)Libraries\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="FrooxEngine">
-      <HintPath>$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
+      <HintPath>$(HeadlessPath)FrooxEngine.dll</HintPath>
+      <HintPath Condition="Exists('$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll')">$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>
     <Reference Include="Elements.Core">
       <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Core.dll</HintPath>
@@ -32,6 +44,9 @@
     </Reference>
     <Reference Include="ArtfullySimple">
       <HintPath>$(ResonitePath)rml_libs\ArtfullySimple.dll</HintPath>
+    </Reference>
+    <Reference Include="HeadlessClient">
+      <HintPath>$(HeadlessPath)Resonite.exe</HintPath>
     </Reference>
   </ItemGroup>
 
