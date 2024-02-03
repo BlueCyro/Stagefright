@@ -81,13 +81,12 @@ public class Universe
 
     private EventHandler<ArtDmxPacket> SetupRoutingCallback(int address)
     {
-
+        Stagefright.Msg($"Setting up routing callback for address {address}!");
         // Define an inline function that captures 'address' so we don't have to worry about it.
         void routingCallback(object sender, ArtDmxPacket dmx)
         {
-
             // Check if the packet was meant for us
-            if (dmx.Universe == address)
+            if (dmx.Universe + 1 == address)
             {
                 // Enter the read lock
                 slimLock.EnterReadLock();
