@@ -2,20 +2,35 @@ using FrooxEngine;
 using System.Net;
 using ArtfullySimple;
 
+
 namespace Stagefright;
 
 public static class ArtNetBridge
 {
     public static readonly HashSet<Universe> Universes = new();
-    public static ArtNetClient recv = new(IPAddress.Any);
+    public static ArtNetClient recv;
     public static event EventHandler<ArtDmxPacket>? DMXRoute;
+    public static readonly IPAddress ListenAddress;
+
+
+
+    static ArtNetBridge()
+    {
+        ListenAddress = IPAddress.Any;
+        Stagefright.Msg($"Constructing bridge and setting listener interface to {ListenAddress}");
+        recv = new(ListenAddress);
+    }
+
+
 
     public static void StartListening()
     {
-        Stagefright.Msg($"Starting ArtNet client listener on: {IPAddress.Any}");
+        Stagefright.Msg($"Starting ArtNet client listener on {ListenAddress}!");
         recv.ReceivedPacket += ReceivePacket;
         recv.StartListening();
     }
+
+
 
     public static void ReceivePacket(object sender, ArtNetPacket args)
     {
@@ -24,6 +39,7 @@ public static class ArtNetBridge
             DMXRoute?.Invoke(sender, packet);
         }
     }
+
 
 
     // Extensions
