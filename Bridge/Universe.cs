@@ -114,6 +114,7 @@ public class Universe
 
                         // Convert the dmxData to a 0.0 - 1.0 float for ease-of-use in DMX fixtures.
                         curStream.Value = dmxData[i] / 255.0f;
+                        curStream.ForceUpdate();
                     }
                 }
                 catch (Exception e)
