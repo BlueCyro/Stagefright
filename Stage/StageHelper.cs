@@ -29,7 +29,6 @@ public static class StageHelper
         var world = temp.World;
         var all = world.AllSlots.ToList();
         
-        world.DestroyUniverses();
         all.ForEach(s => s.TrySetupStage());
 
         temp.Destroy();
@@ -56,39 +55,42 @@ public static class StageHelper
         World world = root.World;
         root.DestroyStage();
         world.DestroyUniverse(info.Universe);
-
-
-        Stagefright.Msg($"Setting up universe {info.Universe} in world {world.Name} with size {info.Count}");
-
-        // Set up a new universe for this world
-        Universe uni = world.SetupUniverse(info.Count, info.Universe);
-
-        // Find the variable space root
-        var space = root.FindSpace(STAGE_IDENTIFIER) ?? root.AttachComponent<DynamicVariableSpace>();
-        space.SpaceName.Value ??= STAGE_IDENTIFIER;
-        
-        // Create a variables slot
-        Slot variableRoot = root.FindChild(s => s.Tag == VARIABLE_SLOT_TAG);
-
-        if (variableRoot == null)
+        root.RunInUpdates(3, () =>
         {
-            Slot varRoot = root.AddSlot("<b><i>variable<color=hero.purple>(</color>s<color=hero.purple>)</color></i></b>", false);
-            varRoot.OrderOffset = 1024;
-            Slot vars = varRoot.AddSlot("DMX Stream Variables");
-            vars.Tag = VARIABLE_SLOT_TAG;
-            variableRoot = vars;
-        }
 
-        for (int i = 0; i < uni.ChannelCount; i++)
-        {
-            // Create a new variable in their place
-            string variableName = (i + 1).ToString();
-            if (i < uni.Streams.Length)
-                variableRoot.CreateVariable<IValue<float>>(variableName, uni.Streams[i], false); // DMX channels are 1-indexed. Ouch.
-        }
+            Stagefright.Msg($"Setting up universe {info.Universe} in world {world.Name} with size {info.Count}");
+
+            // Set up a new universe for this world
+            Universe uni = world.SetupUniverse(info.Count, info.Universe);
+
+            // Find the variable space root
+            var space = root.FindSpace(STAGE_IDENTIFIER) ?? root.AttachComponent<DynamicVariableSpace>();
+            space.SpaceName.Value ??= STAGE_IDENTIFIER;
+            
+            // Create a variables slot
+            Slot variableRoot = root.FindChild(s => s.Tag == VARIABLE_SLOT_TAG);
+
+            if (variableRoot == null)
+            {
+                Slot varRoot = root.AddSlot("<b><i>variable<color=hero.purple>(</color>s<color=hero.purple>)</color></i></b>", false);
+                varRoot.OrderOffset = 1024;
+                Slot vars = varRoot.AddSlot("DMX Stream Variables");
+                vars.Tag = VARIABLE_SLOT_TAG;
+                variableRoot = vars;
+            }
+
+            for (int i = 0; i < uni.ChannelCount; i++)
+            {
+                // Create a new variable in their place
+                string variableName = (i + 1).ToString();
+                if (i < uni.Streams.Length)
+                    variableRoot.CreateVariable<IValue<float>>(variableName, uni.Streams[i], false); // DMX channels are 1-indexed. Ouch.
+            }
 
 
-        ProtoFluxHelper.DynamicImpulseHandler.TriggerDynamicImpulse(root, DMX_DEVICE_REFRESH_TAG, false);
+            ProtoFluxHelper.DynamicImpulseHandler.TriggerDynamicImpulse(root, DMX_DEVICE_REFRESH_TAG, false);
+
+        });
     }
 
 
