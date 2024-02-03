@@ -46,13 +46,14 @@ public static class HeadlessHelper
     public static void StagefrightCommands(CommandHandler handler)
     {
         GenericCommand command =
-        new
-        (
-            "setupDMX",
-            "Sets up all DMX universes that can be found in the currently focused world",
-            "",
-            SetupDMX
-        );
+            new
+            (
+                "setupDMX",
+                "Sets up all DMX universes that can be found in the currently focused world",
+                "",
+                SetupDMX
+            );
+        
         handler.RegisterCommand(command);
     }
 
@@ -60,8 +61,6 @@ public static class HeadlessHelper
 
     private static void SetupDMX(CommandHandler handler, World world, List<string> args)
     {
-        world.RunSynchronously(() => {
-            world.AllSlots.ToList().ForEach(s => s.TrySetupStage());
-        });
+        world.RunSynchronously(() => world.AllSlots.ToList().ForEach(s => s.TrySetupStage()));
     }
 }
