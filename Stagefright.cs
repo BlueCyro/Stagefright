@@ -19,6 +19,8 @@ public class Stagefright : ResoniteMod
         Config = GetConfiguration();
         Config?.Save(true);
 
+        ArtNetBridge.StartListening();
+        
         if (HeadlessHelper.IsHeadless)
         {
             Msg("Headless detected! Running headless-specific setup...");
@@ -28,9 +30,9 @@ public class Stagefright : ResoniteMod
         {
             Engine.Current.RunPostInit(() =>
             {
-                ArtNetBridge.StartListening();
-                DevCreateNewForm.AddAction("ArtNet", "Set up individual universes", StageHelper.BuildStage);
-                DevCreateNewForm.AddAction("ArtNet", "Set up all universes", StageHelper.SetupWorldStages);
+                DevCreateNewForm.AddAction("Stagefright", "Set up individual stages", StageHelper.BuildStage);
+                DevCreateNewForm.AddAction("Stagefright", "Set up all stages", StageHelper.SetupWorldStages);
+                DevCreateNewForm.AddAction("Stagefright", "Destroy all stages", StageHelper.DestroyWorldStages);
             });
         }
     }
