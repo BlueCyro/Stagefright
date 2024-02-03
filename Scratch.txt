@@ -68,6 +68,7 @@ Impl candidate #1:
     -- TODO: Allow arbitrary universe destruction at any point without leaving a world. Right now simplicity is the focus, this isn't a deal breaker
 
   * Functions dealing with in-world universe setups are isolated to helper class
+    - 
 
   * Simple hashset to contain stream groups
     ! Modifications restricted to world thread ONLY
