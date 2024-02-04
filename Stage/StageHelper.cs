@@ -15,6 +15,9 @@ public static class StageHelper
     public static void BuildStage(Slot s)
     {
         var field = s.AttachComponent<ReferenceField<Slot>>();
+        var comment = s.AttachComponent<Comment>();
+        comment.Text.Value = "Place your stage slot into the reference field!";
+        
         field.Reference.Changed += c =>
         {
             field.Reference.Target?.TrySetupStage();
