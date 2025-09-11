@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup> 
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
-    <Version>1.0.0</Version>
+
+    <Version>1.0.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <Authors>Cyro</Authors>
     <Product>Stagefright ArtNet DMX Interface</Product>
@@ -34,19 +34,22 @@
     </Reference>
     <Reference Include="FrooxEngine">
       <HintPath>$(HeadlessPath)FrooxEngine.dll</HintPath>
-      <HintPath Condition="Exists('$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll')">$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
+      <HintPath Condition="Exists('$(ResonitePath)FrooxEngine.dll')">$(ResonitePath)FrooxEngine.dll</HintPath>
     </Reference>
     <Reference Include="Elements.Core">
-      <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Core.dll</HintPath>
+      <HintPath>$(ResonitePath)Elements.Core.dll</HintPath>
     </Reference>
     <Reference Include="Elements.Assets">
-      <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Assets.dll</HintPath>
+      <HintPath>$(ResonitePath)Elements.Assets.dll</HintPath>
     </Reference>
     <Reference Include="ArtfullySimple">
       <HintPath>$(ResonitePath)rml_libs\ArtfullySimple.dll</HintPath>
     </Reference>
     <Reference Include="HeadlessClient">
-      <HintPath>$(HeadlessPath)Resonite.exe</HintPath>
+      <HintPath>$(HeadlessPath)Resonite.dll</HintPath>
+    </Reference>
+    <Reference Include="FrooxEngine.Commands">
+      <HintPath>$(HeadlessPath)FrooxEngine.Commands.dll</HintPath>
     </Reference>
   </ItemGroup>
 

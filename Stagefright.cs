@@ -20,7 +20,7 @@ public class Stagefright : ResoniteMod
         Config?.Save(true);
 
         ArtNetBridge.StartListening();
-        
+
         if (HeadlessHelper.IsHeadless)
         {
             Msg("Headless detected! Running headless-specific setup...");

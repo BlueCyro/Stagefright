@@ -17,7 +17,7 @@ public static class StageHelper
         var field = s.AttachComponent<ReferenceField<Slot>>();
         var comment = s.AttachComponent<Comment>();
         comment.Text.Value = "Place your stage slot into the reference field!";
-        
+
         field.Reference.Changed += c =>
         {
             field.Reference.Target?.TrySetupStage();
@@ -31,12 +31,12 @@ public static class StageHelper
     {
         var world = temp.World;
         var all = world.AllSlots.ToList();
-        
+
         all.ForEach(s => s.TrySetupStage());
 
         temp.Destroy();
     }
-    
+
 
 
     public static bool TrySetupStage(this Slot root)
@@ -69,7 +69,7 @@ public static class StageHelper
             // Find the variable space root
             var space = root.FindSpace(STAGE_IDENTIFIER) ?? root.AttachComponent<DynamicVariableSpace>();
             space.SpaceName.Value ??= STAGE_IDENTIFIER;
-            
+
             // Create a variables slot
             Slot variableRoot = root.FindChild(s => s.Tag == VARIABLE_SLOT_TAG);
 
@@ -127,7 +127,7 @@ public static class StageHelper
         {
             Stagefright.Msg($"Destroying stage {data.Universe} with {data.Count} channels in {slot.World.Name}");
             Slot variableRoot = slot.FindChild(s => s.Tag == VARIABLE_SLOT_TAG);
-            
+
             if (variableRoot != null)
             {
                 var streamVars = variableRoot.GetComponents<DynamicReferenceVariable<IValue<float>>>();

@@ -16,7 +16,7 @@ public static class HeadlessHelper
         {
             return _isHeadless ??= AppDomain.CurrentDomain.GetAssemblies().Any(a => // Overkill, but better safe than sorry. It only happens once anyways.
             {
-                IEnumerable<Type> types;
+                IEnumerable<Type?> types;
                 try
                 {
                     types = a.GetTypes();

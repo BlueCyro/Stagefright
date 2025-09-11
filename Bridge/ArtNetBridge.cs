@@ -32,7 +32,7 @@ public static class ArtNetBridge
 
 
 
-    public static void ReceivePacket(object sender, ArtNetPacket args)
+    public static void ReceivePacket(object? sender, ArtNetPacket args)
     {
         if (args is ArtDmxPacket packet)
         {
