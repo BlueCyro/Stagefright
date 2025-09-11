@@ -23,14 +23,14 @@ public class Universe
         Streams = new ValueStream<float>[ChannelCount];
         slimLock = new();
         handlerDelegate = SetupRoutingCallback(address); // Assign the callback to a delegate so we can unsubscribe it on destruction
-        
+
         for (int i = 0; i < ChannelCount; i++)
         {
             string streamName = $"{StageHelper.STAGE_PREFIX}{Address}:{i + 1}"; // 1-indexing the stream names for consistency
             Streams[i] = World.LocalUser.GetStreamOrAdd<ValueStream<float>>(streamName, s => SetStreamParams(s, streamName));
         }
-        
-        
+
+
         world.WorldManager.WorldRemoved += Destroy;
         ArtNetBridge.DMXRoute += handlerDelegate;
     }
@@ -83,14 +83,14 @@ public class Universe
     {
         Stagefright.Msg($"Setting up routing callback for address {address}!");
         // Define an inline function that captures 'address' so we don't have to worry about it.
-        void routingCallback(object sender, ArtDmxPacket dmx)
+        void routingCallback(object? sender, ArtDmxPacket dmx)
         {
             // Check if the packet was meant for us
             if (dmx.Universe + 1 == address)
             {
                 // Enter the read lock
                 slimLock.EnterReadLock();
-                
+
 
                 // Use a try-catch-finally statement so that we never have a chance to indefinitely hold the read lock
                 try
@@ -98,11 +98,11 @@ public class Universe
                     // If the universe was already destroyed, just abort the work since the class is either shutting down or is already shut down
                     if (Destroyed)
                         return;
-                    
+
 
                     // Interpret as a span so we can apply [] indexing
                     Span<byte> dmxData = dmx.DMX.AsSpan();
-                    
+
                     for (int i = 0; i < Streams.Length; i++)
                     {
 
@@ -110,7 +110,7 @@ public class Universe
                         ValueStream<float> curStream = Streams[i];
                         if (curStream == null || curStream.IsDisposed || curStream.IsDestroyed)
                             return;
-                        
+
 
                         // Convert the dmxData to a 0.0 - 1.0 float for ease-of-use in DMX fixtures.
                         curStream.Value = dmxData[i] / 255.0f;
@@ -128,7 +128,7 @@ public class Universe
                 }
             }
         }
-        
+
         return routingCallback;
     }
 
